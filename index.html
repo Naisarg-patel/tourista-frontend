@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourista - Smart Tourist Guide</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load Inter font & Custom Styles -->
+     <link rel="stylesheet" href="css/styles.css" />
+
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="screen active p-8 max-w-md mx-auto mt-20 bg-white rounded-lg shadow">
+    <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
+
+    <input id="login-email" type="email" placeholder="Email"
+        class="w-full mb-4 p-2 border rounded" />
+
+    <input id="login-password" type="password" placeholder="Password"
+        class="w-full mb-4 p-2 border rounded" />
+
+    <button id="login-btn"
+        class="w-full bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700">
+        Login
+    </button>
+
+    <p class="mt-4 text-center text-sm">
+        Don’t have an account?
+        <button id="go-to-register" class="text-indigo-600 underline">
+        Register
+        </button>
+    </p>
+    </div>
+
+    <!-- REGISTER SCREEN -->
+    <div id="register-screen" class="screen p-8 max-w-md mx-auto mt-20 bg-white rounded-lg shadow">
+    <h2 class="text-2xl font-bold mb-6 text-center">Register</h2>
+
+    <input id="register-name" type="text" placeholder="Full Name"
+        class="w-full mb-4 p-2 border rounded" />
+
+    <input id="register-email" type="email" placeholder="Email"
+        class="w-full mb-4 p-2 border rounded" />
+
+    <input id="register-password" type="password" placeholder="Password"
+        class="w-full mb-4 p-2 border rounded" />
+
+    <button id="register-btn"
+        class="w-full bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700">
+        Register
+    </button>
+
+    <p class="mt-4 text-center text-sm">
+        Already have an account?
+        <button id="go-to-login" class="text-indigo-600 underline">
+        Login
+        </button>
+    </p>
+    </div>
+
+
+    <!-- Screen 2: Initial Feature Selection Menu -->
+    <div id="feature-select-screen" class="screen p-8 pt-20 w-full max-w-4xl mx-auto">
+        <div class="bg-white p-10 rounded-xl shadow-2xl relative">
+            <button id="back-to-login-from-features-btn" class="absolute top-6 left-6 text-gray-400 hover:text-gray-600 transition-all" title="Back to Login">
+                <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+            <h2 class="text-3xl font-bold text-gray-800 text-center">Tourista Main Features</h2>
+            <p class="text-gray-600 mt-2 text-lg text-center">Choose how you want to start your session.</p>
+
+            <!-- FIX: Added gap-8 for uniform spacing -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mt-8">
+                
+                <!-- 1. City Explorer (Requires City Selection) -->
+                <button class="initial-feature-btn group" data-page="city" data-feature="discover">
+                    <div class="p-6 bg-indigo-600 rounded-lg border border-indigo-500 group-hover:bg-indigo-700 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">City Explorer</h3>
+                        <p class="text-sm opacity-80 mt-1">Select a city to explore attractions and maps.</p>
+                    </div>
+                </button>
+
+                <!-- 2. My Saved Trips (Direct to Dashboard AI/Saved Planner) -->
+                <button class="initial-feature-btn group" data-page="dashboard" data-feature="ai">
+                    <div class="p-6 bg-purple-600 rounded-lg border border-purple-500 group-hover:bg-purple-700 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6a3.75 3.75 0 0 0-7.5 0v5.25a3.75 3.75 0 0 0 7.5 0V6Z" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">My Saved Trips</h3>
+                        <p class="text-sm opacity-80 mt-1">View, manage, and generate new AI plans.</p>
+                    </div>
+                </button>
+                
+                <!-- 3. Admin Dashboard (Direct Access) -->
+                <button class="initial-feature-btn group" data-page="dashboard" data-feature="admin">
+                    <div class="p-6 bg-gray-700 rounded-lg border border-gray-600 group-hover:bg-gray-800 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">Admin Dashboard</h3>
+                        <p class="text-sm opacity-80 mt-1">Simulated: Manage settings and app diagnostics.</p>
+                    </div>
+                </button>
+                
+                <!-- 4. Plan a Custom Trip (Route Planner) -->
+                <button class="initial-feature-btn group" data-page="dashboard" data-feature="route">
+                    <div class="p-6 bg-green-600 rounded-lg border border-green-500 group-hover:bg-green-700 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.875L6 12z" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">Plan a Custom Trip</h3>
+                        <p class="text-sm opacity-80 mt-1">Create a route between two destinations of your choice.</p>
+                    </div>
+                </button>
+                
+                <!-- 5. Plan Trip with AI (Direct to Dashboard AI Planner) -->
+                <button class="initial-feature-btn group" data-page="dashboard" data-feature="ai">
+                    <div class="p-6 bg-purple-500 rounded-lg border border-purple-400 group-hover:bg-purple-600 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.25 12L17 14.188l-1.25-2.188L13.5 11l2.25-1.188L17 7.625l1.25 2.188L20.5 11l-2.25 1.188z" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">Plan Trip with AI</h3>
+                        <p class="text-sm opacity-80 mt-1">Generate a custom itinerary instantly using AI.</p>
+                    </div>
+                </button>
+
+                <!-- 6. Offline Map (Requires City Selection) -->
+                <button class="initial-feature-btn group" data-page="city" data-feature="offline">
+                    <div class="p-6 bg-gray-500 rounded-lg border border-gray-400 group-hover:bg-gray-600 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">Offline Map</h3>
+                        <p class="text-sm opacity-80 mt-1">Download maps for use without internet access.</p>
+                    </div>
+                </button>
+                
+                <!-- 7. Currency Converter (Direct Access) -->
+                <button class="initial-feature-btn group" data-page="dashboard" data-feature="info">
+                    <div class="p-6 bg-red-600 rounded-lg border border-red-500 group-hover:bg-red-700 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.12 18.005L16 16.125m-6-6l-1.88-1.88M12 21a9 9 0 110-18 9 9 0 010 18z" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">Currency Converter</h3>
+                        <p class="text-sm opacity-80 mt-1">Quickly check exchange rates and essential info.</p>
+                    </div>
+                </button>
+
+                <!-- 8. Profile Option (Direct Access) -->
+                <button class="initial-feature-btn group" data-page="dashboard" data-feature="profile">
+                    <div class="p-6 bg-pink-600 rounded-lg border border-pink-500 group-hover:bg-pink-700 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0 .75.75 0 01-.433.684l-2.015.672a1.5 1.5 0 01-1.558-.707l-.744-1.116a1.5 1.5 0 00-1.284-.648h-2.146c-.571 0-1.129.213-1.564.596l-.678.552a1.5 1.5 0 01-1.284.648H4.501z" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">User Profile & Settings</h3>
+                        <p class="text-sm opacity-80 mt-1">Manage your account and app preferences.</p>
+                    </div>
+                </button>
+
+                <!-- 9. Map (General View - Direct Access) -->
+                <button class="initial-feature-btn group" data-page="dashboard" data-feature="map">
+                    <div class="p-6 bg-blue-600 rounded-lg border border-blue-500 group-hover:bg-blue-700 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21.75l-4.5-4.5M12 21.75l4.5-4.5M12 21.75V3M15 6H9M18 9H6M21 12H3M18 15H6M15 18H9" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">Map (General View)</h3>
+                        <p class="text-sm opacity-80 mt-1">Quick view for local navigation.</p>
+                    </div>
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 3: City Selection -->
+    <div id="city-screen" class="screen p-8 w-full max-w-4xl mx-auto">
+        <div class="bg-white p-10 rounded-xl shadow-2xl relative">
+            <!-- Back button -->
+            <button id="back-to-features-btn" class="absolute top-6 left-6 text-gray-400 hover:text-gray-600 transition-all" title="Back to Features Menu">
+                <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+
+            <h2 class="text-3xl font-bold text-gray-800 text-center">Welcome, Tourist!</h2>
+            <p class="text-gray-600 mt-2 text-lg text-center">Please select your city to begin.</p>
+            
+            <!-- CITY BUTTONS (REVERTED) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <button class="city-btn group" data-city="Ahmedabad">
+                    <div class="p-6 bg-gray-50 rounded-lg border border-gray-200 group-hover:bg-indigo-50 group-hover:border-indigo-300 transition-all duration-300 transform group-hover:scale-105">
+                        <img src="https://placehold.co/600x400/6366f1/white?text=Ahmedabad&font=inter" alt="Ahmedabad" class="rounded-md w-full h-32 object-cover">
+                        <h3 class="text-xl font-semibold text-gray-900 mt-4">Ahmedabad</h3>
+                        <p class="text-gray-500 text-sm mt-1">Heritage & Modernity</p>
+                    </div>
+                </button>
+                <button class="city-btn group" data-city="Gandhinagar">
+                    <div class="p-6 bg-gray-50 rounded-lg border border-gray-200 group-hover:bg-indigo-50 group-hover:border-indigo-300 transition-all duration-300 transform group-hover:scale-105">
+                        <img src="https://placehold.co/600x400/6366f1/white?text=Gandhinagar&font=inter" alt="Gandhinagar" class="rounded-md w-full h-32 object-cover">
+                        <h3 class="text-xl font-semibold text-gray-900 mt-4">Gandhinagar</h3>
+                        <p class="text-gray-500 text-sm mt-1">The Green Capital</p>
+                    </div>
+                </button>
+                <button class="city-btn group" data-city="Mehsana">
+                    <div class="p-6 bg-gray-50 rounded-lg border border-gray-200 group-hover:bg-indigo-50 group-hover:border-indigo-300 transition-all duration-300 transform group-hover:scale-105">
+                        <img src="https://placehold.co/600x400/6366f1/white?text=Mehsana&font=inter" alt="Mehsana" class="rounded-md w-full h-32 object-cover">
+                        <h3 class="text-xl font-semibold text-gray-900 mt-4">Mehsana</h3>
+                        <p class="text-gray-500 text-sm mt-1">Gateway to North Gujarat</p>
+                    </div>
+                </button>
+            </div>
+            <!-- END CITY BUTTONS -->
+
+            <!-- New Search Bar Section -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 text-left">Or Search for Any City</h3>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="custom-city-input" placeholder="E.g., Mumbai, London, Paris..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                    <button id="search-city-btn" class="flex-shrink-0 bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-indigo-700 transition duration-300 shadow-md flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+                        Start Exploring
+                    </button>
+                </div>
+            </div>
+            <!-- End Search Bar Section -->
+
+        </div>
+    </div>
+
+    <!-- Screen 4: City-Specific Main Menu -->
+    <div id="main-menu-screen" class="screen p-8 w-full max-w-4xl mx-auto">
+        <div class="bg-white p-10 rounded-xl shadow-2xl relative">
+            <button id="back-to-city-select-btn" class="absolute top-6 left-6 text-gray-400 hover:text-gray-600 transition-all" title="Change City">
+                <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+            
+            <h2 class="text-3xl font-bold text-gray-800 text-center">Tourista Menu</h2>
+            <p class="text-gray-600 mt-2 text-lg text-center">Explore options for <span class="text-indigo-600 font-semibold" id="main-menu-city"></span></p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
+                
+                <!-- 1. City Explorer -->
+                <button class="menu-feature-btn group" data-feature="discover">
+                    <div class="p-6 bg-indigo-600 rounded-lg border border-indigo-500 group-hover:bg-indigo-700 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">City Explorer</h3>
+                        <p class="text-sm opacity-80 mt-1">Search attractions and find live information.</p>
+                    </div>
+                </button>
+                
+                <!-- 2. My Saved Trips -->
+                <button class="menu-feature-btn group" data-feature="ai">
+                    <div class="p-6 bg-purple-600 rounded-lg border border-purple-500 group-hover:bg-purple-700 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6a3.75 3.75 0 0 0-7.5 0v5.25a3.75 3.75 0 0 0 7.5 0V6Z" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">My Saved Trips</h3>
+                        <p class="text-sm opacity-80 mt-1">View, manage, and generate new AI plans.</p>
+                    </div>
+                </button>
+
+                <!-- 3. Plan a Custom Trip (Route Planner) -->
+                <button class="menu-feature-btn group" data-feature="route">
+                    <div class="p-6 bg-green-600 rounded-lg border border-green-500 group-hover:bg-green-700 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.875L6 12z" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">Plan a Custom Trip</h3>
+                        <p class="text-sm opacity-80 mt-1">Create a custom route between points of interest.</p>
+                    </div>
+                </button>
+
+                <!-- 4. Local Events Calendar -->
+                <button class="menu-feature-btn group" data-feature="events">
+                    <div class="p-6 bg-yellow-600 rounded-lg border border-yellow-500 group-hover:bg-yellow-700 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V15a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 15v3.75m-18 0h18M5.25 6H18.75M3 18.75h18" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">Local Events Calendar</h3>
+                        <p class="text-sm opacity-80 mt-1">See festivals, concerts, and local happenings.</p>
+                    </div>
+                </button>
+
+                <!-- 5. Tourist Info Hub -->
+                <button class="menu-feature-btn group" data-feature="info">
+                    <div class="p-6 bg-red-600 rounded-lg border border-red-500 group-hover:bg-red-700 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 15h.008v.008H15v-.008z" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">Tourist Info & Currency</h3>
+                        <p class="text-sm opacity-80 mt-1">Currency converter, emergency numbers, and FAQs.</p>
+                    </div>
+                </button>
+
+                <!-- 6. Safety & Security Hub (NEW) -->
+                <button class="menu-feature-btn group" data-feature="safety">
+                    <div class="p-6 bg-orange-600 rounded-lg border border-orange-500 group-hover:bg-orange-700 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">Safety & Security Hub</h3>
+                        <p class="text-sm opacity-80 mt-1">Local emergency numbers and travel advisories.</p>
+                    </div>
+                </button>
+
+                <!-- 7. User Profile & Settings (NEW) -->
+                <button class="menu-feature-btn group" data-feature="profile">
+                    <div class="p-6 bg-pink-600 rounded-lg border border-pink-500 group-hover:bg-pink-700 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0 .75.75 0 01-.433.684l-2.015.672a1.5 1.5 0 01-1.558-.707l-.744-1.116a1.5 1.5 0 00-1.284-.648h-2.146c-.571 0-1.129.213-1.564.596l-.678.552a1.5 1.5 0 01-1.284.648H4.501z" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">User Profile & Settings</h3>
+                        <p class="text-sm opacity-80 mt-1">Manage your account, preferences, and logged data.</p>
+                    </div>
+                </button>
+                
+                <!-- 8. Map (New Simple Map) -->
+                <button class="menu-feature-btn group" data-feature="map">
+                    <div class="p-6 bg-blue-600 rounded-lg border border-blue-500 group-hover:bg-blue-700 transition-all duration-300 transform group-hover:scale-105 shadow-md flex flex-col justify-center items-center h-40 min-w-64 text-white">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21.75l-4.5-4.5M12 21.75l4.5-4.5M12 21.75V3M15 6H9M18 9H6M21 12H3M18 15H6M15 18H9" /></svg>
+                        <h3 class="text-xl font-semibold mt-4">Map</h3>
+                        <p class="text-sm opacity-80 mt-1">Quick view for local navigation.</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screen 5: Dynamic Dashboard -->
+    <div id="dashboard-screen" class="screen w-full h-screen p-4 md:p-6 lg:p-8">
+        <div class="bg-white rounded-xl shadow-2xl h-full flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="flex items-center justify-between p-4 border-b border-gray-200">
+                <div class="flex items-center gap-3">
+                    <!-- Back button to Main Menu -->
+                    <button id="back-to-menu-btn" class="text-gray-400 hover:text-gray-600 transition-all" title="Back to Main Menu">
+                        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>
+                    <svg class="w-8 h-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m0 0v2.25m0-2.25h1.5M9 15h1.5m-1.5 0H5.625c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H15M12 9V3.75m0 5.25A2.25 2.25 0 0014.25 12h.008c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125h-4.5c-.621 0-1.125-.504-1.125-1.125v-1.5c0-.621.504-1.125 1.125-1.125h.008A2.25 2.25 0 0012 9z" />
+                    </svg>
+                    <h2 class="text-2xl font-bold text-gray-800">Tourista</h2>
+                    <span class="bg-indigo-100 text-indigo-700 font-semibold px-3 py-1 rounded-full text-sm" id="selected-city-dashboard"></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="save-offline-btn" class="flex items-center gap-2 bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-200 transition-all text-sm">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                        Save Offline
+                    </button>
+                    <img src="https://placehold.co/100x100/e0e7ff/4f46e5?text=User&font=inter" alt="User Profile" class="w-10 h-10 rounded-full cursor-pointer">
+                </div>
+            </header>
+            
+            <!-- Main Content Area -->
+            <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+                <!-- Left Panel: Controls (Dynamically loaded) -->
+                <aside id="controls-panel" class="w-full md:w-1/3 lg:w-1/4 p-6 bg-gray-50 border-r border-gray-200 overflow-y-auto">
+                    <!-- Feature-specific controls will be injected here -->
+                </aside>
+
+                <!-- Right Panel: Content (Dynamically loaded) -->
+                <main class="flex-1 p-6 md:p-8 overflow-y-auto">
+                    <h3 id="content-title" class="text-2xl font-semibold text-gray-800 mb-6"></h3>
+                    
+                    <!-- Feature View Containers (Only one shown at a time) -->
+                    <div id="discover-view" class="space-y-4 hidden">
+                        <!-- Attraction List View -->
+                        <div id="attractions-list-view" class="space-y-4"></div>
+                    </div>
+                    
+                    <div id="route-view" class="hidden">
+                        <!-- Route Display View -->
+                        <!-- Mock Map Display -->
+                        <div class="mock-map">
+                            <!-- Start/End Pins -->
+                            <div class="absolute top-1/2 left-[10%] -translate-y-1/2 z-30">
+                                <div class="bg-indigo-600 text-white font-bold w-8 h-8 rounded-full flex items-center justify-center shadow-lg">S</div>
+                            </div>
+                             <div class="absolute top-1/2 left-[90%] -translate-y-1/2 -translate-x-full z-30">
+                                <div class="bg-green-600 text-white font-bold w-8 h-8 rounded-full flex items-center justify-center shadow-lg">D</div>
+                            </div>
+                            
+                            <!-- Main Route -->
+                            <div class="route-path main-route"></div>
+                            <div class="route-segment traffic"></div>
+                            <div class="route-segment construction"></div>
+                            
+                            <!-- Alt Route -->
+                            <div class="route-path alt-route"></div>
+
+                            <!-- Labels -->
+                            <span class="route-label bg-red-600" style="left: 32%; top: 28%;">Heavy Traffic</span>
+                            <span class="route-label bg-orange-500" style="left: 62%; top: 28%;">Under Construction</span>
+                            <span class="route-label bg-gray-700" style="left: 45%; top: 53%;">Alt. Route</span>
+                        </div>
+
+                        <!-- Route Details -->
+                        <div class="mt-6 space-y-4">
+                            <!-- Main Route Card -->
+                            <div class="bg-white p-4 rounded-lg shadow-md border-2 border-indigo-600">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">Main Route</h4>
+                                        <p class="text-gray-600">Fastest, despite traffic.</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-xl font-bold text-indigo-600">22 min</p>
+                                        <p class="text-sm text-gray-500">8.4 km</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 mt-4 text-sm">
+                                    <span class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full bg-red-500"></div> Heavy Traffic</span>
+                                    <span class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full bg-orange-500"></div> Construction</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Alt Route Card -->
+                            <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200 opacity-70 hover:opacity-100 transition-all">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-700">Alternate Route</h4>
+                                        <p class="text-gray-500">Via Riverfront Rd.</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-xl font-bold text-gray-800">28 min</p>
+                                        <p class="text-sm text-gray-500">10.2 km</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Stops along the way (mock) -->
+                            <div class="pt-4 mt-4 border-t border-gray-200">
+                                <h4 class="text-lg font-semibold text-gray-800">Suggestions Along Your Route</h4>
+                                <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg mt-3">
+                                    <img src="https://placehold.co/100x100/a5b4fc/1e1b4b?text=Cafe&font=inter" alt="Cafe" class="w-12 h-12 rounded-lg object-cover">
+                                    <div>
+                                        <h5 class="font-semibold text-gray-900">Riverfront Coffee</h5>
+                                        <p class="text-sm text-gray-600">4.6 ★ | Restaurant</p>
+                                    </div>
+                                    <button class="ml-auto bg-indigo-100 text-indigo-700 font-medium py-1.5 px-3 rounded-full text-sm hover:bg-indigo-200">Add to Stop</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="ai-view" class="hidden">
+                        <!-- AI Itinerary Planner output will go here -->
+                        <div id="ai-itinerary-output" class="bg-white p-6 rounded-lg shadow-md">
+                             <p class="text-gray-700 text-center p-12">Generate your plan using the controls on the left.</p>
+                        </div>
+                    </div>
+
+                    <!-- 5. Local Events View -->
+                    <div id="events-view" class="hidden">
+                        <div id="events-list" class="space-y-4">
+                            <p class="text-gray-500 text-center p-12">Events loaded here.</p>
+                        </div>
+                    </div>
+
+                    <!-- 6. Tourist Info Hub View -->
+                    <div id="info-view" class="hidden">
+                        <div id="info-content" class="space-y-6">
+                            <!-- Currency Converter Mockup -->
+                            <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-red-500">
+                                <h4 class="text-xl font-semibold text-gray-900 mb-4">Currency Converter (INR ↔ USD)</h4>
+                                <div class="flex items-center gap-3">
+                                    <input type="number" value="1000" class="w-1/3 p-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500">
+                                    <span class="text-lg font-bold">INR ≈</span>
+                                    <input type="text" value="12.03" readonly class="w-1/3 p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700">
+                                    <span class="text-lg font-bold">USD</span>
+                                </div>
+                            </div>
+                            <!-- Emergency Info Mockup -->
+                            <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-red-500">
+                                <h4 class="text-xl font-semibold text-gray-900 mb-4">Emergency & Essential Contacts</h4>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li class="flex justify-between border-b pb-1"><span>Police:</span> <span class="font-bold text-red-600">100</span></li>
+                                    <li class="flex justify-between border-b pb-1"><span>Ambulance:</span> <span class="font-bold text-red-600">108</span></li>
+                                    <li class="flex justify-between border-b pb-1"><span>Tourist Help Line:</span> <span class="font-bold text-red-600">1800-456-789</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7. Safety & Security Hub View (NEW) -->
+                    <div id="safety-view" class="hidden">
+                        <div id="safety-content" class="space-y-6">
+                            <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-orange-500">
+                                <h4 class="text-xl font-semibold text-gray-900 mb-4">Emergency Contacts</h4>
+                                <ul class="space-y-2 text-lg text-gray-700">
+                                    <li class="flex justify-between border-b pb-1"><span>Police:</span> <span class="font-bold text-orange-600">100</span></li>
+                                    <li class="flex justify-between border-b pb-1"><span>Ambulance:</span> <span class="font-bold text-orange-600">108</span></li>
+                                    <li class="flex justify-between border-b pb-1"><span>Fire:</span> <span class="font-bold text-orange-600">101</span></li>
+                                    <li class="flex justify-between border-b pb-1"><span>Tourist Help Line:</span> <span class="font-bold text-red-600">1800-456-789</span></li>
+
+                                </ul>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-orange-500">
+                                <h4 class="text-xl font-semibold text-gray-900 mb-4">Local Travel Advisories</h4>
+                                <p id="safety-advice-output" class="text-sm text-gray-700 min-h-[50px]">
+                                    Click the button on the left to generate city-specific advice.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 8. Admin Dashboard View (NEW) -->
+                    <div id="admin-view" class="hidden">
+                        <div class="p-12 text-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                            <svg class="w-16 h-16 text-gray-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5M21 16.5L16.5 21m0 0L12 16.5m4.5 4.5V7.5" /></svg>
+                            <h4 class="text-xl font-semibold text-gray-800">System Diagnostics & Access Control</h4>
+                            <p class="text-gray-600 mt-2">This view is restricted to administrators for managing system performance and user roles.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 9. Map View (NEW SIMPLE MAP) -->
+                    <div id="map-view" class="hidden">
+                        <div class="p-12 text-center bg-blue-50 rounded-lg border-2 border-dashed border-blue-300">
+                            <svg class="w-16 h-16 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21.75l-4.5-4.5M12 21.75l4.5-4.5M12 21.75V3M15 6H9M18 9H6M21 12H3M18 15H6M15 18H9" /></svg>
+                            <h4 class="text-xl font-semibold text-gray-800">Simple Navigation Map</h4>
+                            <p class="text-gray-600 mt-2">This is a placeholder for a generalized map view that might include simple pinning or geolocation features.</p>
+                        </div>
+                    </div>
+
+                    <!-- 10. User Profile View (NEW) -->
+                    <div id="profile-view" class="hidden">
+                        <div id="profile-content" class="space-y-6">
+                            <div class="bg-white p-6 rounded-xl shadow-xl flex flex-col items-center border-t-4 border-pink-500">
+                                <img src="https://placehold.co/150x150/f0abfc/881337?text=U&font=inter" alt="User Avatar" class="w-24 h-24 rounded-full mb-4 ring-4 ring-pink-200">
+                                <h4 class="text-2xl font-bold text-gray-800">Tourist User</h4>
+                                <p class="text-md text-gray-500">tourist@example.com</p>
+                                <p class="text-sm text-pink-600 mt-2">Active City: <span id="active-profile-city">Ahmedabad</span></p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-pink-500">
+                                <h4 class="text-xl font-semibold text-gray-900 mb-4">My Bio</h4>
+                                <textarea id="profile-bio-input" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-pink-500 focus:border-pink-500 mb-3" placeholder="Tell us about yourself...">I am an enthusiastic traveler looking for the next big adventure!</textarea>
+                                <button id="generate-bio-btn-dynamic" class="flex items-center gap-2 bg-pink-100 text-pink-700 font-semibold py-2 px-4 rounded-lg hover:bg-pink-200 transition duration-300 text-sm">
+                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.25 12L17 14.188l-1.25-2.188L13.5 11l2.25-1.188L17 7.625l1.25 2.188L20.5 11l-2.25 1.188z" /></svg>
+                                    Generate Bio
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- js files  -->
+    <script src="js/api.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/featureSelect.js"></script>
+
+</body>
+</html>
