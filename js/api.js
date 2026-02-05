@@ -14,7 +14,7 @@ async function registerUser(name, email, password) {
   const res = await fetch(`${API_URL}/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify({ name : name, email : email, password : password }),
   });
   return res.json();
 }
