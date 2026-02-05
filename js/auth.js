@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const password = document.getElementById("login-password").value;
 
       console.log("Login clicked", email); 
-      const data = await loginUser({ email, password });
+      const data = await loginUser(email, password);
 
       if (data.token) {
         localStorage.setItem("token", data.token);
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       console.log("Register clicked", email); // 🔍 DEBUG
 
-      const data = await registerUser({ name, email, password });
+      const data = await registerUser(name, email, password);
 
       if (data.user) {
         alert("Registration successful. Please login.");
