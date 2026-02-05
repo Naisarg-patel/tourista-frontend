@@ -1,4 +1,4 @@
-const API_URL = "https://tourista-backend-yv1v.onrender.com/api/auth";
+const API_URL = "https://tourista-backend-hhaz.onrender.com/api/auth";
 
 async function loginUser(email, password) {
   const res = await fetch(`${API_URL}/login`, {
