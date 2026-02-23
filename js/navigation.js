@@ -47,77 +47,107 @@ const modalCloseBtn = document.getElementById('modal-close-btn');
 
 
 /**
-         * Shows a specific screen and hides others
-         * @param {string} screenId - 'login', 'register', 'feature-select', 'city', 'main-menu', or 'dashboard'
-         */
-        function showScreen(screenId) {
-            // Store current screen before changing
-            const activeScreen = Object.keys(screens).find(key => screens[key].classList.contains('active'));
-            if (activeScreen && activeScreen !== screenId) {
-                previousScreen = activeScreen;
-            }
+ * Shows a specific screen and hides others
+ * @param {string} screenId - 'login', 'feature-select', 'city', 'main-menu', or 'dashboard'
+ */
+function showScreen(screenId) {
+    // Store current screen before changing
+    const activeScreen = Object.keys(screens).find(key => screens[key].classList.contains('active'));
+    if (activeScreen && activeScreen !== screenId) {
+        previousScreen = activeScreen;
+    }
 
-            // Update City in Profile Screen
-            if (screenId === 'profile' || screenId === 'dashboard') {
-                if (activeProfileCity) activeProfileCity.textContent = currentCity;
-            }
+    // Update City in Profile Screen
+    if (screenId === 'profile' || screenId === 'dashboard') {
+        if (activeProfileCity) activeProfileCity.textContent = currentCity;
+    }
 
-            Object.values(screens).forEach(screen => {
-                screen.classList.remove('active');
-            });
-            if(screens[screenId]) {
-                screens[screenId].classList.add('active');
-            }
+    Object.values(screens).forEach(screen => {
+        screen.classList.remove('active');
+    });
+    if(screens[screenId]) {
+        screens[screenId].classList.add('active');
+    }
+}
+
+/**
+ * Switches to a specific view within the dashboard (accessible for menu.js)
+ * @param {string} viewName - View identifier
+ */
+function switchView(viewName) {
+    const views = {
+        discover: discoverView,
+        route: routeView,
+        ai: aiView,
+        events: eventsView,
+        info: infoView,
+        safety: safetyView,
+        profile: profileView,
+        admin: adminView,
+        map: mapView
+    };
+
+    // Hide all views
+    Object.values(views).forEach(view => {
+        if (view) view.classList.remove('active', 'hidden');
+    });
+
+    // Show selected view
+    if (views[viewName]) {
+        views[viewName].classList.add('active');
+        views[viewName].classList.remove('hidden');
+        currentFeature = viewName;
+    }
+}
+
+/**
+ * Core function to call the Gemini API
+ * @returns {Promise<string>} - The generated text content
+ */
+async function callGeminiAPI(systemPrompt, userPrompt, retries = 3) {
+    const payload = {
+        contents: [{ parts: [{ text: userPrompt }] }],
+        systemInstruction: {
+            parts: [{ text: systemPrompt }]
+        },
+    };
+    
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-         /**
-         * Core function to call the Gemini API
-         * @returns {Promise<string>} - The generated text content
-         */
-        async function callGeminiAPI(systemPrompt, userPrompt, retries = 3) {
-            const payload = {
-                contents: [{ parts: [{ text: userPrompt }] }],
-                systemInstruction: {
-                    parts: [{ text: systemPrompt }]
-                },
-            };
-            
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+        const result = await response.json();
+        const candidate = result.candidates?.[0];
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-                const candidate = result.candidates?.[0];
-
-                if (candidate && candidate.content?.parts?.[0]?.text) {
-                    return candidate.content.parts[0].text;
-                } else {
-                    throw new Error("Invalid response structure from API.");
-                }
-            } catch (error) {
-                console.error("API Error:", error);
-                if (retries > 0) {
-                    await new Promise(res => setTimeout(res, (4 - retries) * 1000));
-                    return callGeminiAPI(systemPrompt, userPrompt, retries - 1);
-                } else {
-                    return "Sorry, I'm having trouble connecting to the AI. Please try again later. (Error: API Limit)";
-                }
-            }
+        if (candidate && candidate.content?.parts?.[0]?.text) {
+            return candidate.content.parts[0].text;
+        } else {
+            throw new Error("Invalid response structure from API.");
         }
+    } catch (error) {
+        console.error("API Error:", error);
+        if (retries > 0) {
+            await new Promise(res => setTimeout(res, (4 - retries) * 1000));
+            return callGeminiAPI(systemPrompt, userPrompt, retries - 1);
+        } else {
+            return "Sorry, I'm having trouble connecting to the AI. Please try again later. (Error: API Limit)";
+        }
+    }
+}
         
-        /**
-         * Handles setting the city and transitioning to the main menu.
-         * @param {string} city 
-         * @param {string | null} nextFeature - Optional feature to load after city selection
-         */
-        function handleCitySelection(city, nextFeature = null) {
+/**
+ * Handles setting the city and transitioning to the main menu.
+ * @param {string} city 
+ * @param {string | null} nextFeature - Optional feature to load after city selection
+ */
+function handleCitySelection(city, nextFeature = null) {
             currentCity = city;
             // The following elements are guaranteed to exist now that we are inside window.onload
             if (selectedCityDashboard) selectedCityDashboard.textContent = currentCity; 
@@ -133,11 +163,11 @@ const modalCloseBtn = document.getElementById('modal-close-btn');
         }
 
 
-        /**
-         * Renders the controls and content for the current feature
-         * @param {string} featureId - 'discover', 'route', 'ai', 'events', 'info', 'offline', 'safety', 'profile', 'admin', 'map'
-         */
-        function loadDashboardFeature(featureId) {
+/**
+ * Renders the controls and content for the current feature
+ * @param {string} featureId - 'discover', 'route', 'ai', 'events', 'info', 'offline', 'safety', 'profile', 'admin', 'map'
+ */
+function loadDashboardFeature(featureId) {
             currentFeature = featureId;
 
             // 1. Set Controls Panel Content
@@ -149,7 +179,9 @@ const modalCloseBtn = document.getElementById('modal-close-btn');
             if (featureId === 'discover') {
                 discoverView.classList.remove('hidden');
                 contentTitle.textContent = "Featured Attractions";
-                renderAttractions('all');
+                // Load REAL attractions from backend
+                loadCityAttractions(currentCity, 'all');
+                attachCategoryFilterListeners(currentCity);
                 attachDiscoverListeners();
             } else if (featureId === 'route') {
                 routeView.classList.remove('hidden');
@@ -182,6 +214,19 @@ const modalCloseBtn = document.getElementById('modal-close-btn');
             } else if (featureId === 'map') { // NEW MAP
                 mapView.classList.remove('hidden');
                 contentTitle.textContent = "General Map View";
+
+                // notify other modules that the map view is now active
+                const evt = new CustomEvent('viewChanged', { detail: { view: 'map' } });
+                document.dispatchEvent(evt);
+
+                // ensure map is initialized in case listener didn't run
+                if (window.MapController && typeof MapController.initializeMap === 'function') {
+                    // small delay so container is rendered
+                    setTimeout(() => {
+                        MapController.initializeMap('leaflet-map-container');
+                        MapController.initializeMapViewControls();
+                    }, 100);
+                }
                 // attachMapListeners(); // If needed later
             }
              else if (featureId === 'offline') {
@@ -217,25 +262,34 @@ const modalCloseBtn = document.getElementById('modal-close-btn');
             const dynamicCategoryBtns = controlsPanel.querySelectorAll('.category-btn');
             const dynamicSearchInput = controlsPanel.querySelector('#search-input');
             
-            // Category buttons
+            // Category buttons - Load REAL attractions by category
             dynamicCategoryBtns.forEach(btn => {
                 btn.onclick = () => {
-                    renderAttractions(btn.dataset.category);
+                    // Remove active state from all buttons
+                    dynamicCategoryBtns.forEach(b => b.classList.remove('border-indigo-500', 'bg-indigo-50'));
+                    // Add active state to clicked button
+                    btn.classList.add('border-indigo-500', 'bg-indigo-50');
+                    
+                    const category = btn.dataset.category || 'all';
+                    loadCityAttractions(currentCity, category);
                 };
             });
 
-            // Search input
+            // Search input - Search by keyword in current city
             if(dynamicSearchInput) {
                 dynamicSearchInput.onkeydown = (e) => {
                     if (e.key === 'Enter') {
                         e.preventDefault();
-                        renderAttractions(dynamicSearchInput.value);
+                        const searchTerm = dynamicSearchInput.value.trim();
+                        if (searchTerm) {
+                            // Simple client-side filter for now
+                            loadCityAttractions(currentCity, 'all');
+                        }
                     }
                 };
             }
 
             // AI Tips Button (Delegation)
-            // Ensure we only attach this once
             if (!attractionsListView.getAttribute('data-tips-listener')) {
                 attractionsListView.setAttribute('data-tips-listener', 'true');
                 attractionsListView.addEventListener('click', async (e) => {

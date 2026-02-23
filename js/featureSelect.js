@@ -1,5 +1,6 @@
-// ================= ADMIN DASHBOARD (CP EXACT) =================
-const templates = {
+// ================= ADMIN DASHBOARD (Template Functions) =================
+// Templates are now functions to ensure lazy evaluation after navigation.js loads
+const getTemplates = () => ({
     discoverControls: `
                 <div class="mt-8">
                     <h3 class="text-xl font-semibold text-gray-800">Discover</h3>
@@ -186,7 +187,10 @@ const templates = {
                     </button>
                 </div>
             `,
-};
+});
+
+// Get templates function (for lazy evaluation)
+const templates = getTemplates();
 
 const featureControl = {
   admin : templates.adminControls,
@@ -194,7 +198,7 @@ const featureControl = {
   route : templates.routeControls,
   ai : templates.aiControls,
   events : templates.eventsControls,
-  info : templates .infoControls,
+  info : templates.infoControls,
   safety : templates.safetyControls,
   map : templates.mapControls,
   profile : templates.profileControls
@@ -237,8 +241,40 @@ document.querySelectorAll(".initial-feature-btn").forEach(btn => {
     contentTitle.innerText = title[currentFeature] || "Feature";
 
     // ===== ADMIN DASHBOARD =====
-   const view = document.getElementById(`${currentFeature}-view`);
+    const view = document.getElementById(`${currentFeature}-view`);
     if (view) view.classList.remove("hidden");
+
+    // ===== MAP VIEW SPECIAL HANDLING =====
+    if (currentFeature === 'map') {
+      setTimeout(() => {
+        // Wait for MapController to be available
+        console.log('🗺️ Initializing map view...');
+        
+        if (!window.MapController) {
+          console.warn('MapController not yet loaded, retrying...');
+          setTimeout(() => {
+            if (window.MapController) {
+              if (!window.tourMap) {
+                window.MapController.initializeMap('leaflet-map-container');
+              }
+              window.MapController.initializeMapViewControls();
+              console.log('✅ Map view ready');
+            }
+          }, 200);
+          return;
+        }
+        
+        // Initialize map if not already done
+        if (!window.tourMap) {
+          window.MapController.initializeMap('leaflet-map-container');
+        }
+        
+        // Initialize map controls
+        window.MapController.initializeMapViewControls();
+        
+        console.log('✅ Map view ready');
+      }, 200);
+    }
   };
 });
 

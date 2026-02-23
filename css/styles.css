@@ -110,3 +110,141 @@ body {
             color: white;
             z-index: 30;
         }
+        /* ============ LEAFLET MAP STYLES ============ */
+
+        /* Map container */
+        #leaflet-map-container,
+        #route-map-container {
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* User location marker pulse animation */
+        .user-location-marker.pulse {
+            animation: pulseMarker 2s infinite;
+        }
+
+        @keyframes pulseMarker {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Route polyline styling */
+        .route-polyline {
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        /* Map marker labels */
+        .start-marker-label,
+        .end-marker-label,
+        .custom-pinpoint {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Leaflet popup customization */
+        .leaflet-popup-content {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .leaflet-popup-close-button {
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .leaflet-popup-close-button:hover {
+            color: #111827;
+        }
+
+        /* Map container animations */
+        @keyframes mapSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #leaflet-map-container,
+        #route-map-container {
+            animation: mapSlideIn 0.5s ease-out;
+        }
+
+        /* Leaflet default styles override */
+        .leaflet-container {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .leaflet-control {
+            background-color: white !important;
+            border-radius: 0.375rem !important;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .leaflet-control-attribution {
+            background-color: rgba(255, 255, 255, 0.8) !important;
+            font-size: 0.75rem !important;
+        }
+
+        /* Route information panel animation */
+        #route-info-panel {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Map control buttons */
+        .map-control-btn {
+            transition: all 0.3s ease;
+            border-radius: 0.375rem;
+            font-weight: 600;
+        }
+
+        .map-control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Pinpoint markers */
+        .custom-pinpoint {
+            font-weight: bold;
+        }
+
+        /* Responsive map height */
+        @media (max-width: 768px) {
+            #leaflet-map-container,
+            #route-map-container {
+                height: 350px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #leaflet-map-container,
+            #route-map-container {
+                height: 300px !important;
+            }
+        }
