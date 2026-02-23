@@ -66,10 +66,13 @@ async function getAttractionById(id) {
 // Get REAL attractions from OpenStreetMap (bypass database)
 async function getRealAttractionsByCity(city, category = 'all') {
   try {
-    const url = category && category !== 'all' 
-      ? `${ATTRACTIONS_API_URL}/real/${encodeURIComponent(city)}?category=${category}`
-      : `${ATTRACTIONS_API_URL}/real/${encodeURIComponent(city)}`;
-    
+    // Backend supports ?source=real on the /city/:cityName endpoint
+    const base = `${ATTRACTIONS_API_URL}/city/${encodeURIComponent(city)}`;
+    const params = new URLSearchParams();
+    params.set('source', 'real');
+    if (category && category !== 'all') params.set('category', category);
+    const url = `${base}?${params.toString()}`;
+
     console.log(`📍 Fetching REAL attractions from OpenStreetMap for ${city}...`);
     const res = await fetch(url);
     if (!res.ok) throw new Error('Failed to fetch real attractions');

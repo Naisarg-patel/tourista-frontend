@@ -2,6 +2,7 @@
 // Real-time map with routes, pinpoints, and live updates
 
 let tourMap = null;
+let routeMap = null; // separate small map for route screen
 let routeLayer = null;
 let markers = {};
 let pinPoints = [];
@@ -87,6 +88,53 @@ function initializeMap(mapContainerId = 'leaflet-map-container') {
         return tourMap;
     } catch (error) {
         console.error('❌ Error initializing map:', error);
+        return null;
+    }
+}
+
+/**
+ * Initialize a small route map inside the route planner panel
+ */
+function initializeRouteMap(mapContainerId = 'route-map-container') {
+    try {
+        const mapContainer = document.getElementById(mapContainerId);
+        if (!mapContainer) {
+            console.warn(`Route map container ${mapContainerId} not found`);
+            return null;
+        }
+
+        if (typeof L === 'undefined') {
+            console.error('Leaflet not loaded');
+            return null;
+        }
+
+        // If already initialized, invalidate and return
+        if (routeMap) {
+            routeMap.invalidateSize();
+            return routeMap;
+        }
+
+        routeMap = L.map(mapContainerId, { scrollWheelZoom: false }).setView([20.5937, 78.9629], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors', maxZoom: 19
+        }).addTo(routeMap);
+
+        // small feature group for route display inside route map
+        const routeFeature = L.featureGroup().addTo(routeMap);
+
+        // remove loading overlay inside route container if present
+        const ov = document.getElementById('map-loading-overlay');
+        if (ov && ov.parentNode && ov.parentNode.id === mapContainerId) {
+            ov.parentNode.removeChild(ov);
+        }
+
+        routeMap.on('load', () => routeMap.invalidateSize());
+        setTimeout(() => routeMap.invalidateSize(), 100);
+
+        console.log('✅ Route map initialized');
+        return routeMap;
+    } catch (err) {
+        console.error('❌ Error initializing route map', err);
         return null;
     }
 }
@@ -258,14 +306,18 @@ async function drawRoute(startLat, startLon, endLat, endLon, color = '#4F46E5') 
 
 /**
  * Add waypoint markers along the route
+ * Caps number of waypoints to avoid huge marker counts on long routes
  */
-function addWaypoints(coordinates, interval = 10) {
+function addWaypoints(coordinates, maxWaypoints = 200) {
     try {
         if (!tourMap) {
             console.warn('⚠️ Map not initialized');
             return;
         }
 
+        // compute interval so we add at most `maxWaypoints` markers
+        const interval = Math.max(1, Math.ceil(coordinates.length / maxWaypoints));
+        let added = 0;
         for (let i = 0; i < coordinates.length; i += interval) {
             const coord = coordinates[i];
             L.circleMarker(coord, {
@@ -274,11 +326,13 @@ function addWaypoints(coordinates, interval = 10) {
                 color: '#fff',
                 weight: 1,
                 opacity: 0.6,
-                fillOpacity: 0.6
+                fillOpacity: 0.6,
+                interactive: false
             }).addTo(tourMap);
+            added++;
         }
 
-        console.log(`✅ Added ${Math.ceil(coordinates.length / interval)} waypoints`);
+        console.log(`✅ Added ${added} waypoints (interval ${interval})`);
     } catch (error) {
         console.error('❌ Error adding waypoints:', error);
     }
@@ -328,10 +382,13 @@ function addPinPoint(latitude, longitude, details = {}) {
 
         // Add marker to map
         const marker = L.marker([latitude, longitude], { icon: customIcon })
-            .bindPopup(`
+.bindPopup(`
                 <div class="text-sm">
                     <h4 class="font-bold text-gray-800">${title}</h4>
                     <p class="text-gray-600">Category: ${category}</p>
+                    ${details.address ? `<p class="text-xs text-gray-500">Address: ${details.address}</p>` : ''}
+                    ${details.phone ? `<p class="text-xs text-gray-500">Phone: ${details.phone}</p>` : ''}
+                    ${details.hours ? `<p class="text-xs text-gray-500">Hours: ${details.hours}</p>` : ''}
                     <p class="text-xs text-gray-500">Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}</p>
                     <p class="text-xs text-gray-400">${new Date(pinPoint.timestamp).toLocaleTimeString()}</p>
                 </div>
@@ -747,8 +804,15 @@ async function findAttractionsNearRoute(routeCoordinates, searchRadius = 2) {
         // Get current city or use default
         const city = window.currentCity || 'Ahmedabad';
         
-        // Fetch attractions for the city
-        const attractions = await getAttractionsByCity(city, 'all');
+        // Fetch real attractions (OSM) for the city to include shops/POIs
+        // fallback to seeded if real data not returned
+        let attractions = [];
+        if (typeof getRealAttractionsByCity === 'function') {
+            attractions = await getRealAttractionsByCity(city, 'all');
+        }
+        if ((!attractions || attractions.length === 0) && typeof getAttractionsByCity === 'function') {
+            attractions = await getAttractionsByCity(city, 'all');
+        }
         
         if (!attractions || attractions.length === 0) {
             return [];
@@ -810,15 +874,21 @@ async function addAttractionsNearRoute(routeCoordinates) {
 
                 const icon = categoryIcons[attraction.category] || '⭐';
 
-                addPinPoint(
+                // include additional info if available
+                let details = {
+                    title: attraction.name,
+                    category: attraction.category,
+                    icon: icon,
+                    color: getColorForCategory(attraction.category)
+                };
+                if (attraction.address) details.address = attraction.address;
+                if (attraction.phone) details.phone = attraction.phone;
+                if (attraction.hours) details.hours = attraction.hours;
+
+                const pin = addPinPoint(
                     attraction.latitude,
                     attraction.longitude,
-                    {
-                        title: attraction.name,
-                        category: attraction.category,
-                        icon: icon,
-                        color: getColorForCategory(attraction.category)
-                    }
+                    details
                 );
             }
         });
@@ -935,8 +1005,26 @@ async function drawRouteWithStops(startLat, startLon, endLat, endLon, stopsArray
 async function geocodeAddress(address) {
     try {
         const encodedAddress = encodeURIComponent(address);
+        // First try backend proxy to avoid CORS issues
+        try {
+            const proxyRes = await fetch(`/api/geocode?q=${encodedAddress}`);
+            if (proxyRes.ok) {
+                const proxyData = await proxyRes.json();
+                if (proxyData && proxyData.length > 0) {
+                    const result = proxyData[0];
+                    console.log(`✅ Geocoded ${address} via proxy to (${result.lat}, ${result.lon})`);
+                    return {
+                        latitude: parseFloat(result.lat),
+                        longitude: parseFloat(result.lon),
+                        displayName: result.display_name || result.name || address
+                    };
+                }
+            }
+        } catch (proxyErr) {
+            console.warn('Proxy geocode failed, falling back to direct Nominatim:', proxyErr);
+        }
+
         const url = `https://nominatim.openstreetmap.org/search?q=${encodedAddress}&format=json&limit=1`;
-        
         const response = await fetch(url);
         const data = await response.json();
 

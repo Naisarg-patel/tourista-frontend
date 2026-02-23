@@ -1,6 +1,9 @@
 // ============ MAP UI INTERACTION CONTROLLER ============
 // Handles all user interactions with the map views
 
+// Ensure MAP_PROVIDER exists (defaults to Leaflet/OpenStreetMap)
+window.MAP_PROVIDER = window.MAP_PROVIDER || 'leaflet';
+
 /**
  * Initialize map view controls and event listeners
  */
@@ -147,7 +150,70 @@ function initializeMapViewControls() {
             });
         }
 
+        // enter on map search should trigger go button too
+        const mapSearchInputEl = document.getElementById('map-search-input');
+        const mapSearchBtnEl = document.getElementById('map-search-btn');
+        if (mapSearchInputEl) {
+            mapSearchInputEl.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && mapSearchBtnEl) mapSearchBtnEl.click();
+            });
+        }
+
         // === NEW MAP CONTROLS (Google Maps Style) ===
+
+// geolocation helper
+function locateUser() {
+    if (!tourMap || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude } = pos.coords;
+        if (MAP_PROVIDER === 'google') {
+            if (markers.userLocation && markers.userLocation.setMap) {
+                markers.userLocation.setMap(null);
+            }
+            markers.userLocation = new google.maps.Marker({
+                position: { lat: latitude, lng: longitude },
+                map: tourMap,
+                title: 'You are here',
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 8,
+                    fillColor: '#2e7d32',
+                    fillOpacity: 0.8,
+                    strokeColor: '#fff',
+                    strokeWeight: 2
+                }
+            });
+            tourMap.setCenter({ lat: latitude, lng: longitude });
+            tourMap.setZoom(15);
+        } else {
+            if (markers.userLocation) {
+                tourMap.removeLayer(markers.userLocation);
+            }
+            markers.userLocation = L.circleMarker([latitude, longitude], {
+                radius: 8,
+                fillColor: '#2e7d32',
+                color: '#fff',
+                weight: 2,
+                fillOpacity: 0.8
+            }).addTo(tourMap).bindPopup('You are here').openPopup();
+            tourMap.setView([latitude, longitude], 15);
+        }
+        // show nearby attractions as pinpoints
+        findAttractionsNearRoute([[latitude, longitude]], 3).then(nears => {
+            nears.forEach(attr => {
+                addPinPoint(attr.latitude, attr.longitude, {
+                    title: attr.name,
+                    category: attr.category,
+                    icon: '📍',
+                    color: getColorForCategory(attr.category)
+                });
+            });
+        });
+    }, err => {
+        console.error('Geolocation error', err);
+    });
+}
+
         const zoomInBtn = document.getElementById('zoom-in-btn');
         const zoomOutBtn = document.getElementById('zoom-out-btn');
         const centerMapBtn = document.getElementById('center-map-btn');
@@ -173,20 +239,57 @@ function initializeMapViewControls() {
 
         if (centerMapBtn) {
             centerMapBtn.addEventListener('click', () => {
-                if (startPoint && endPoint) {
-                    const bounds = L.latLngBounds([
-                        [startPoint.lat, startPoint.lng],
-                        [endPoint.lat, endPoint.lng]
-                    ]);
-                    tourMap.fitBounds(bounds, { padding: [100, 100] });
-                    console.log('Map centered on route');
-                } else if (startPoint) {
-                    tourMap.setView([startPoint.lat, startPoint.lng], 13);
-                    console.log('Map centered on start point');
-                } else if (markers.userLocation) {
-                    tourMap.centerObject(markers.userLocation);
-                    console.log('Map centered on user location');
+                if (MAP_PROVIDER === 'google') {
+                    if (startPoint && endPoint) {
+                        const bounds = new google.maps.LatLngBounds();
+                        bounds.extend(startPoint);
+                        bounds.extend(endPoint);
+                        tourMap.fitBounds(bounds);
+                        console.log('Map centered on route');
+                    } else if (startPoint) {
+                        tourMap.setCenter(startPoint);
+                        tourMap.setZoom(13);
+                        console.log('Map centered on start point');
+                    } else if (markers.userLocation && markers.userLocation.getPosition) {
+                        tourMap.setCenter(markers.userLocation.getPosition());
+                        console.log('Map centered on user location');
+                    }
+                } else {
+                    if (startPoint && endPoint) {
+                        const bounds = L.latLngBounds([
+                            [startPoint.lat, startPoint.lng],
+                            [endPoint.lat, endPoint.lng]
+                        ]);
+                        tourMap.fitBounds(bounds, { padding: [100, 100] });
+                        console.log('Map centered on route');
+                    } else if (startPoint) {
+                        tourMap.setView([startPoint.lat, startPoint.lng], 13);
+                        console.log('Map centered on start point');
+                    } else if (markers.userLocation) {
+                        try {
+                            let latlng = null;
+                            if (markers.userLocation.getLatLng) {
+                                latlng = markers.userLocation.getLatLng();
+                            } else if (markers.userLocation.getPosition) {
+                                const p = markers.userLocation.getPosition();
+                                latlng = { lat: p.lat(), lng: p.lng() };
+                            }
+                            if (latlng) {
+                                tourMap.setView([latlng.lat, latlng.lng], 13);
+                                console.log('Map centered on user location');
+                            }
+                        } catch (err) {
+                            console.warn('Could not center on user location:', err);
+                        }
+                    }
                 }
+            });
+        }
+        // geolocation control
+        const locateBtn = document.getElementById('locate-btn');
+        if (locateBtn) {
+            locateBtn.addEventListener('click', () => {
+                locateUser();
             });
         }
 
@@ -220,6 +323,163 @@ function initializeMapViewControls() {
                     console.log('Switched to normal map');
                 }
                 isSatellite = !isSatellite;
+            });
+        }
+
+        // === LOCATION SEARCH HELPERS ===
+        function geocodeLocation(query) {
+            // use Nominatim open geocoder
+            return fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(query))
+                .then(r => r.json())
+                .then(arr => arr && arr.length ? arr[0] : null);
+        }
+
+        const searchBtn = document.getElementById('map-search-btn');
+        if (searchBtn) {
+            searchBtn.addEventListener('click', () => {
+                const q = document.getElementById('map-search-input')?.value;
+                if (!q) return;
+                geocodeLocation(q).then(loc => {
+                    if (!loc) {
+                        alert('Location not found');
+                        return;
+                    }
+                    const lat = parseFloat(loc.lat), lon = parseFloat(loc.lon);
+                    if (MAP_PROVIDER === 'google') {
+                        tourMap.setCenter({ lat, lng: lon });
+                        tourMap.setZoom(14);
+                    } else {
+                        tourMap.setView([lat, lon], 14);
+                    }
+                    // place a temporary marker
+                    addPinPoint(lat, lon, { title: q, icon: '🔎' });
+                }).catch(err => {
+                    console.error('Geocode error', err);
+                });
+            });
+        }
+
+        // === OTHER OPTIONS (top-right menu) ===
+        const otherOptionsBtn = document.getElementById('other-options-btn');
+        const otherOptionsMenu = document.getElementById('other-options-menu');
+        const toggleLegendBtn = document.getElementById('toggle-legend-btn');
+        const showAllAttractionsBtn = document.getElementById('show-all-attractions-btn');
+        const toggleClusterBtn = document.getElementById('toggle-cluster-btn');
+
+        let clusteringEnabled = false;
+
+        if (otherOptionsBtn && otherOptionsMenu) {
+            otherOptionsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                otherOptionsMenu.classList.toggle('hidden');
+            });
+
+            // close menu when clicking outside
+            document.addEventListener('click', () => {
+                if (!otherOptionsMenu.classList.contains('hidden')) otherOptionsMenu.classList.add('hidden');
+            });
+        }
+
+        // Toggle legend visibility
+        if (toggleLegendBtn) {
+            toggleLegendBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const legend = document.getElementById('map-legend');
+                if (legend) {
+                    legend.classList.toggle('hidden');
+                }
+                otherOptionsMenu.classList.add('hidden');
+            });
+        }
+
+        // Helper: fetch attractions inside bbox via Overpass (simple)
+        async function fetchAttractionsByBBox(south, west, north, east) {
+            try {
+                const query = `[out:json][timeout:25];(node["amenity"](${south},${west},${north},${east});node["tourism"](${south},${west},${north},${east});node["shop"](${south},${west},${north},${east}););out body;`;
+                const res = await fetch('https://overpass-api.de/api/interpreter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `data=${encodeURIComponent(query)}`
+                });
+                if (!res.ok) throw new Error('Overpass request failed');
+                const data = await res.json();
+                return (data.elements || []).map(el => ({
+                    name: el.tags && (el.tags.name || el.tags.amenity || el.tags.tourism || el.tags.shop) || 'POI',
+                    latitude: el.lat,
+                    longitude: el.lon,
+                    category: el.tags && (el.tags.tourism || el.tags.amenity || el.tags.shop) || 'Other'
+                }));
+            } catch (err) {
+                console.error('❌ Overpass fetch error', err);
+                return [];
+            }
+        }
+
+        // Show all attractions across route bbox
+        if (showAllAttractionsBtn) {
+            showAllAttractionsBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                otherOptionsMenu.classList.add('hidden');
+                if (!tourMap) return;
+
+                // Compute bbox from start/end if available, otherwise use current map bounds
+                let south, west, north, east;
+                if (startPoint && endPoint) {
+                    const lats = [startPoint.lat, endPoint.lat];
+                    const lngs = [startPoint.lng, endPoint.lng];
+                    south = Math.min(...lats) - 0.5; // add buffer
+                    north = Math.max(...lats) + 0.5;
+                    west = Math.min(...lngs) - 0.5;
+                    east = Math.max(...lngs) + 0.5;
+                } else if (tourMap.getBounds) {
+                    const b = tourMap.getBounds();
+                    south = b.getSouth(); west = b.getWest(); north = b.getNorth(); east = b.getEast();
+                } else {
+                    alert('Set a route or zoom to the area first');
+                    return;
+                }
+
+                showAlert('🔎 Fetching attractions across route area — this may take a moment');
+                const pois = await fetchAttractionsByBBox(south, west, north, east);
+                if (!pois || pois.length === 0) {
+                    showAlert('No attractions found in bounding box');
+                    return;
+                }
+
+                // clear previous pins (optional)
+                clearAllPinPoints();
+
+                pois.slice(0, 500).forEach(p => {
+                    addPinPoint(p.latitude, p.longitude, { title: p.name, category: p.category, icon: '📍' });
+                });
+
+                showAlert(`✅ Added ${Math.min(pois.length,500)} attractions from bbox`);
+            });
+        }
+
+        // Toggle clustering placeholder
+        if (toggleClusterBtn) {
+            toggleClusterBtn.addEventListener('click', () => {
+                clusteringEnabled = !clusteringEnabled;
+                showAlert(`Clustering ${clusteringEnabled ? 'enabled' : 'disabled'}`);
+                otherOptionsMenu.classList.add('hidden');
+            });
+        }
+
+        // Back button inside options menu
+        const mapBackBtn = document.getElementById('map-back-btn');
+        if (mapBackBtn) {
+            mapBackBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Prefer going back to main feature select if available
+                if (typeof showScreen === 'function') {
+                    showScreen('feature');
+                } else {
+                    // fallback: click existing nav back button if present
+                    const navBack = document.getElementById('back-to-menu-btn');
+                    if (navBack) navBack.click();
+                }
+                otherOptionsMenu.classList.add('hidden');
             });
         }
 
@@ -418,12 +678,18 @@ document.addEventListener('viewChanged', (event) => {
             setTimeout(() => {
                 initializeMap('leaflet-map-container');
                 initializeMapViewControls();
+                updateMapWithCity(window.currentCity || 'Ahmedabad');
             }, 200);
         } else {
             initializeMapViewControls();
+            updateMapWithCity(window.currentCity || 'Ahmedabad');
         }
     } else if (viewName === 'route') {
         console.log('🛣️ Route view activated');
+        // Initialize route-specific map and controls
+        if (window.MapController && typeof MapController.initializeRouteMap === 'function') {
+            MapController.initializeRouteMap('route-map-container');
+        }
         initializeRouteViewControls();
     }
 });
@@ -633,8 +899,6 @@ async function displayAttractionsAlongRoute() {
 }
 
 /**
-
-/**
  * Show alert helper
  */
 function showAlert(message) {
@@ -669,6 +933,7 @@ window.MapController = {
     updateMapWithCity,
     initializeMapViewControls,
     initializeRouteViewControls,
+    initializeRouteMap,
     calculateDistance,
     getPinPoints,
     exportMapData,

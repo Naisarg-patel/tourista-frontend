@@ -16,6 +16,11 @@ const cityBtns = document.querySelectorAll('.city-btn');
 const searchCityBtn = document.getElementById('search-city-btn');
 const customCityInput = document.getElementById('custom-city-input');
 const menuFeatureBtns = document.querySelectorAll('.menu-feature-btn');
+// Header back button (restore behavior)
+const backToMenuBtn = document.getElementById('back-to-menu-btn');
+if (backToMenuBtn) {
+    backToMenuBtn.addEventListener('click', () => showScreen('menu'));
+}
 // Views and Panel
 
 let currentScreen = null;
@@ -149,6 +154,7 @@ async function callGeminiAPI(systemPrompt, userPrompt, retries = 3) {
  */
 function handleCitySelection(city, nextFeature = null) {
             currentCity = city;
+            window.currentCity = city; // make global for controllers
             // The following elements are guaranteed to exist now that we are inside window.onload
             if (selectedCityDashboard) selectedCityDashboard.textContent = currentCity; 
             if (mainMenuCity) mainMenuCity.textContent = currentCity; 
@@ -256,6 +262,25 @@ function loadDashboardFeature(featureId) {
                 modalBody.innerHTML = `<div class="flex items-center justify-center h-24"><div class="spinner text-indigo-600"></div></div>`;
             }
             modalOverlay.style.display = 'flex';
+        }
+
+        function closeModal() {
+            if (modalOverlay) modalOverlay.style.display = 'none';
+            if (modalTitle) modalTitle.textContent = '';
+            if (modalBody) modalBody.innerHTML = '';
+        }
+
+        // Wire up modal close button and click outside to close
+        if (modalCloseBtn) {
+            modalCloseBtn.addEventListener('click', () => {
+                closeModal();
+            });
+        }
+        if (modalOverlay) {
+            modalOverlay.addEventListener('click', (e) => {
+                // Close if click on backdrop (not inside modal content)
+                if (e.target === modalOverlay) closeModal();
+            });
         }
 
         function attachDiscoverListeners() {

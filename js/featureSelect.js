@@ -166,7 +166,7 @@ const getTemplates = () => ({
                         <label for="map-search-input" class="text-sm font-medium text-gray-700">Search Location</label>
                         <input type="text" id="map-search-input" value="${currentCity} City Center" class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="E.g., Eiffel Tower">
                     </div>
-                    <button class="w-full flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 shadow-lg shadow-blue-500/30">
+                    <button id="map-search-btn" class="w-full flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 shadow-lg shadow-blue-500/30">
                         <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
                         Go to Location
                     </button>

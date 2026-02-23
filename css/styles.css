@@ -201,6 +201,17 @@ body {
             font-size: 0.75rem !important;
         }
 
+        /* Ensure our overlay controls and legend sit above Leaflet panes and remain visible while panning */
+        .map-overlay {
+            z-index: 10000 !important;
+            pointer-events: auto;
+        }
+
+        /* Slightly larger hit targets for overlay buttons */
+        .map-overlay button {
+            cursor: pointer;
+        }
+
         /* Route information panel animation */
         #route-info-panel {
             animation: slideDown 0.3s ease-out;
